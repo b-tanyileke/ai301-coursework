@@ -15,22 +15,34 @@ wrong label is not graded.
 
 **Issue link**
 
-[The individual Path Review issue page. A link to the repository or the issue list
-does not satisfy this field.]
+[Issue #68](https://github.com/codepath/pathreview-ai301-fa26-s3/issues/68)
 
 **Verdict output**
 
-[Your skill's live-mode output for this issue, pasted verbatim and ending with the
-fenced JSON verdict block. A summary does not satisfy this field.]
+## Summary ΓÇö Issue #68: `KeywordSearcher.index()` raises `ZeroDivisionError` on empty corpus
 
-**The verdict must record `accept` for this issue.** Choose an issue your own skill
-accepts. If your skill rejects every candidate you try, that is a signal about your
-rubric rather than about the issues: revise it and re-run — retries are unlimited and a
-partial re-run costs about $0.20 — or run the skill on different candidates. Output
-recording `reject` for the issue you chose earns no credit for this field.
+| Check | Grade | Evidence |
+|---|---|---|
+| Repository is active | pass | Not archived; last push 2026-09-16 (2 days before evaluation), with multiple commits by collaborator Aburke225 that same day |
+| Maintainer is responsive | pass | Collaborator Aburke225 (COLLABORATOR association) closed issues #52 and #43 with substantive responses the same day they were filed |
+| Scope is bounded | pass | Body names the exact bug (`index([])` ΓåÆ `ZeroDivisionError` in `BM25Okapi`), the two files to touch, the fix requirement (handle empty corpus like `search()` does), and instructs removing the `@pytest.mark.xfail` marker; effort estimated 2ΓÇô4 hours |
+| Issue is unclaimed | pass | No assignees, zero comments, and `gh pr list --state all` returns no PRs in the entire repo |
+| AI-assisted contribution is allowed | pass | No `CONTRIBUTING.md` or AI policy file anywhere in the repo (root or `.github/`); PR template has no AI-disclosure requirement; silence passes per rubric |
 
-```
-paste the output here, including the closing JSON block
+All required checks pass, and the preferred responsiveness check also passes. This is a well-scoped Python bug fix (`rag/retriever/keyword_search.py`) with a `good first issue` + `tier-1` label, which matches your stated preference for a clearly scoped Python issue over HTML/CSS/JS or architectural work.
+
+```json
+{
+  "item": "https://github.com/codepath/pathreview-ai301-fa26-s3/issues/68",
+  "checks": [
+    {"name": "Repository is active", "grade": "pass", "evidence": "last push 2026-09-16T21:50:20Z, not archived, multiple recent commits by Aburke225"},
+    {"name": "Maintainer is responsive", "grade": "pass", "evidence": "Aburke225 (COLLABORATOR) replied same-day on issues #52 and #43"},
+    {"name": "Scope is bounded", "grade": "pass", "evidence": "Body specifies exact bug, files (keyword_search.py, test_keyword_search.py), required behavior, and removal of xfail marker H-01"},
+    {"name": "Issue is unclaimed", "grade": "pass", "evidence": "No assignees, 0 comments, `gh pr list --state all` returns []"},
+    {"name": "AI-assisted contribution is allowed", "grade": "pass", "evidence": "No CONTRIBUTING.md or AI policy file found in repo root or .github/; silence passes"}
+  ],
+  "verdict": "accept"
+}
 ```
 
 ---
@@ -41,27 +53,25 @@ Quote source text directly in each field below. Paraphrase does not satisfy them
 
 **Run history**
 
-[The agreement score of each run you did, in order. A single run is a complete answer if
-only one run occurred. **The last score in your list must match the agreement line in the
-`eval-run.txt` you committed** — that file is the record of your final run.]
+1. Smoke run with `--limit 3`: `agreement: 3/3 scored items`
+2. Complete 20-issue run: `agreement: 19/20 scored items (bar: 18/20: PASS)`
 
 **Issue analysis**
 
-[One scored issue, identified by id (`issue-01` through `issue-20`; the `calib-`
-issues are not scored). State your rubric's decision, the gold label, and the
-reasoning that produced your rubric's result.]
+I analyzed `issue-19`. My rubric returned `reject`, while the gold label was `accept`. The harness reported `failed: Scope is bounded`. The issue said, “There are two potential causes which should be fixed,” and then listed three “Additional suggestions,”. My rubric Likely interpreted that as several changes rather than one bounded beginner task.
 
 **Check rationale**
 
-[One check from the `rubric.md` uploaded to `tools/issue-select/`, quoted as it is
-currently written, with the reasoning behind its current form.]
+> **Scope is bounded**  
+> **Evidence:** Inspect the issue body and comment thread for the requested change, expected behavior, design decisions, dependencies, and earlier attempts.  
+> **Pass condition:** The issue requests one bounded code, documentation, or test change whose intended result is sufficiently clear to begin investigating. Fail tracking or umbrella issues, pure support questions, unresolved design discussions, or issues with repeated abandoned attempts that indicate hidden complexity.  
+> **Weight:** required
+
+I made this check required because I wanted a relatively simple first contribution with a clear intended result which isn't complex. I included the issue body and discussion as evidence to identify unresolved questions or abandoned attempts which could signal complexity.
 
 **Trade-offs**
 
-[What the quoted check gives up. Any one of these is a complete answer: an issue whose
-result it changes, a canary you re-ran with `--only`, a case you accept it will miss, or a
-stated reason nothing changed elsewhere. "Nothing changed, and here is how I know" earns
-the point in full when the reason follows.]
+My scope check rejected `issue-19`, which the gold label accepted. It may therefore miss some viable issues with multiple causes or implementation strategies. I'm fine with this trade-off for my first contribution because, I wouldn't want to accept work involving several interacting changes or multiprocessing.
 
 ---
 
@@ -79,6 +89,12 @@ This is also the basis for the claim comment you write in Unit 2.
 2. What the verdict identified correctly, and what you weighed that the rubric could
    not.
 3. The anticipated difficulty in claiming it.]
+
+1. This issue fits my interests because it is a clearly scoped Python bug in the RAG subsystem, which is related to my interests in AI and machine-learning. The issue estimates 2–4 hours and provides an existing failing test, so it appears reasonable.
+
+2. The verdict correctly identified that the repository is active, the issue is unclaimed, AI-assisted work is not prohibited, and the expected behavior is sufficiently clear. Beyond the rubric, I weighed my familiarity with Python and RAG systems.
+
+3. I expect the claim itself to be straightforward because the issue is open and currently has no assignee, comments, or linked pull request.
 
 ---
 
