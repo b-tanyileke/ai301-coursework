@@ -58,7 +58,7 @@ Quote source text directly in each field below. Paraphrase does not satisfy them
 
 **Issue analysis**
 
-I analyzed `issue-19`. My rubric returned `reject`, while the gold label was `accept`. The harness reported `failed: Scope is bounded`. The issue said, “There are two potential causes which should be fixed,” and then listed three “Additional suggestions,”. My rubric Likely interpreted that as several changes rather than one bounded beginner task.
+I analyzed `issue-19`. My rubric returned `reject`, while the gold label was `accept`. The harness reported `failed: Scope is bounded`. The issue said, “There are two potential causes which should be fixed,” and then listed three “Additional suggestions,”. My rubric likely interpreted that as several changes rather than one bounded beginner task.
 
 **Check rationale**
 
@@ -67,11 +67,11 @@ I analyzed `issue-19`. My rubric returned `reject`, while the gold label was `ac
 > **Pass condition:** The issue requests one bounded code, documentation, or test change whose intended result is sufficiently clear to begin investigating. Fail tracking or umbrella issues, pure support questions, unresolved design discussions, or issues with repeated abandoned attempts that indicate hidden complexity.  
 > **Weight:** required
 
-I made this check required because I wanted a relatively simple first contribution with a clear intended result which isn't complex. I included the issue body and discussion as evidence to identify unresolved questions or abandoned attempts which could signal complexity.
+I made this check required because I wanted a relatively simple first contribution with a clear intended result that isn't complex. I included the issue body and discussion as evidence to identify unresolved questions or abandoned attempts that could signal complexity.
 
 **Trade-offs**
 
-My scope check rejected `issue-19`, which the gold label accepted. It may therefore miss some viable issues with multiple causes or implementation strategies. I'm fine with this trade-off for my first contribution because, I wouldn't want to accept work involving several interacting changes or multiprocessing.
+My scope check rejected `issue-19`, which the gold label accepted. It may therefore miss some viable issues with multiple causes or implementation strategies. I'm fine with this trade-off for my first contribution because I wouldn't want to accept work involving several interacting changes or multiprocessing.
 
 ---
 
@@ -83,14 +83,7 @@ This is also the basis for the claim comment you write in Unit 2.
 
 **Selection rationale**
 
-[Answer all three:
-
-1. The issue's fit to your interests and to the time available.
-2. What the verdict identified correctly, and what you weighed that the rubric could
-   not.
-3. The anticipated difficulty in claiming it.]
-
-1. This issue fits my interests because it is a clearly scoped Python bug in the RAG subsystem, which is related to my interests in AI and machine-learning. The issue estimates 2–4 hours and provides an existing failing test, so it appears reasonable.
+1. This issue fits my interests because it is a clearly scoped Python bug in the RAG subsystem, which is related to my interests in AI and machine learning. The issue estimates 2–4 hours and provides an existing failing test, so it appears reasonable.
 
 2. The verdict correctly identified that the repository is active, the issue is unclaimed, AI-assisted work is not prohibited, and the expected behavior is sufficiently clear. Beyond the rubric, I weighed my familiarity with Python and RAG systems.
 
