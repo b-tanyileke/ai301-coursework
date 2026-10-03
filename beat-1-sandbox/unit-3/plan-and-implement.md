@@ -15,17 +15,33 @@ label is not graded.
 
 **GitHub username**
 
-[Your GitHub username, exactly as it appears on your profile - no @, no
-profile URL. Your comment upstream is identified by this name, and it is
-the only thing that ties it to you. Several students may plan the same
-house issue, so this is what keeps their comments off your score and
-yours off theirs.]
+b-tanyileke
 
 **Plan comment**
 
-[Link to the comment where you posted your plan on the issue. Use the comment's own
-permalink. **Then paste the text of that comment underneath the link** — the pasted text is
-what this field is graded on, so copy across what you actually posted.]
+https://github.com/codepath/pathreview-ai301-fa26-s3/issues/68#issuecomment-5965596361
+
+Based on my reproduction at commit
+2f4e82f52efbcfcc57d65b3fa5348672163ca088, index([]) passes an
+empty tokenized corpus to BM25Okapi, which divides by a corpus size of
+zero during initialization. My control showed that search() already
+returns [] when no index exists, so I plan to handle the empty case
+inside KeywordSearcher.index() before BM25 construction.
+
+The change will store the empty chunk list, reset self.bm25 to
+None, and return while leaving the non-empty indexing path unchanged.
+In tests/unit/test_keyword_search.py, I will remove the issue #68
+xfail marker and add coverage for replacing an existing non-empty
+index with an empty one, so stale BM25 state cannot remain.
+
+I will verify the change by rerunning my posted empty-index reproduction,
+confirming that a subsequent search returns [], and running the full
+keyword-search unit test file. I am keeping search(), tokenization,
+BM25 scoring, HybridRetriever, and the rank-bm25 dependency out of
+scope.
+
+I also reviewed the classmate PRs currently linked to this issue (#74
+and #83). This remains my independent plan based on my own reproduction.
 
 ---
 
@@ -33,15 +49,65 @@ what this field is graded on, so copy across what you actually posted.]
 
 **Branch**
 
-[The name of the branch you built the change on, exactly as it appears in your fork. The
-naming shape is a type prefix, then the issue number, then a short description. **The issue
-number in the branch name must be the number of the issue you claimed** — a name carrying
-any other number does not satisfy this field.]
+fix/68-empty-index
 
 **Evidence**
 
-[Your Unit 2 reproduction steps re-run against the built change: the before, then the
-after. Paste both, including the commands you ran and their output.]
+### Before the fix
+
+At commit `2f4e82f52efbcfcc57d65b3fa5348672163ca088`, I ran the Unit 2 reproduction test:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests/unit/test_keyword_search.py::TestKeywordSearcher::test_empty_index -vv --runxfail --tb=short
+```
+
+- Output:
+
+tests/unit/test_keyword_search.py::TestKeywordSearcher::test_empty_index FAILED
+
+tests\unit\test_keyword_search.py:140: in test_empty_index
+    searcher.index([])
+rag\retriever\keyword_search.py:25: in index
+    self.bm25 = BM25Okapi(tokenized_corpus)
+.venv\Lib\site-packages\rank_bm25.py:52: in _initialize
+    self.avgdl = num_doc / self.corpus_size
+E   ZeroDivisionError: division by zero
+
+1 failed
+
+### After the fix
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 -m pytest tests/unit/test_keyword_search.py::TestKeywordSearcher::test_empty_index -vv --runxfail --tb=short
+```
+
+- Output:
+
+collected 1 item
+
+tests/unit/test_keyword_search.py::TestKeywordSearcher::test_empty_index PASSED [100%]
+
+1 passed in 0.33s
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 -c "from rag.retriever.keyword_search import KeywordSearcher; s = KeywordSearcher(); s.index([]); print(s.search('python'))"
+```
+
+- Output
+
+2026-10-03 00:02:04 [warning  ] keyword_search_empty_index
+[]
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 -m pytest tests/unit/test_keyword_search.py -vv --tb=short
+```
+
+- Output
+
+tests/unit/test_keyword_search.py::TestKeywordSearcher::test_empty_index PASSED
+tests/unit/test_keyword_search.py::TestKeywordSearcher::test_empty_index_clears_existing_state PASSED
+
+18 passed in 0.30s
 
 ## Eval iterations
 
@@ -50,28 +116,44 @@ fields.
 
 **Run history**
 
-[The agreement score of each run you did, in order. A single run is a complete answer if
-only one run occurred. **The last score in your list must match the agreement line in the
-`eval-run.txt` you committed** — that file is the record of your final run.]
+1. Smoke run with `--limit 3`: 3/3 agreement.
+2. First full saved run: 20/20 agreement, with every category fully matched; PASS.
 
 **Package analysis**
 
-[Pick one scored package (`pkg-01` through `pkg-20` — the four `calib-` packages are never
-scored). Name it by id, say what your rubric decided and what the gold label said, and
-explain why your rubric read it that way.]
+I analyzed `pkg-10`. My rubric returned `reject`, and the gold label was
+also `reject`. The plan identified `git_status` as the slow component,
+but it left the actual solution to implementation time: it proposed
+profiling, investigating the Scoop installation, exploring caching, and
+optimizing whatever appeared slow. My `executable-by-stranger` check
+rejected that because the plan did not select a technical layer,
+mechanism, or starting code area. The `test-decisive` check also rejected
+“the prompt should feel fast” and “timings should look much better”
+because neither statement gives an observable threshold that would
+distinguish a successful fix from the reproduced 1.9-second delay.
 
 **Check rationale**
 
-[Quote one check from the `rubric.md` you uploaded to `tools/plan-check/`, exactly as it reads now.
-Then say why it reads that way — what you revised to get there, or what you rejected in
-favour of it.]
+| scope-bounded | The candidate plan's in-scope and out-of-scope commitments, files or code areas, approach, and stated deferrals read against the issue and thread highlights. | The plan describes one coherent, reviewable change and excludes unrelated refactors, migrations, redesigns, cleanup, or adjacent defects. A deliberately scoped-down solution passes when its boundary and deferrals are explicit and it still resolves the behavior the plan claims to fix. | required |
+
+I wrote this check to judge whether the proposed change is a coherent
+review unit rather than judging how large or comprehensive the plan
+looks. The lecture emphasized that the out-of-scope boundary is what a
+reviewer can hold the eventual diff against. I also allowed explicit
+scoped-down solutions because deferring a larger redesign can be the
+more responsible plan when the remaining change still resolves a useful,
+well-defined part of the issue.
 
 **Trade-offs**
 
-[Every check gives something up. Any one of these is a complete answer: a package whose
-result it changes, a canary you re-ran with `--only`, a case you accept it will miss, or a
-stated reason nothing changed elsewhere. "Nothing changed, and here is how I know" earns
-the point in full when the reason follows.]
+The `scope-bounded` check deliberately allows a contributor to defer
+part of a larger issue when the deferral is explicit and the remaining
+change is complete on its own. The trade-off is that it may accept a
+narrower solution than a maintainer ultimately prefers. I accepted that
+risk because requiring every plan to solve the broadest version would
+reward scope creep. the rubric accepted the intentionally scoped-down
+`pkg-09` and `pkg-14`, while it rejected all four scope-creep packages
+(`pkg-06`, `pkg-12`, `pkg-15`, and `pkg-19`).
 
 ---
 
