@@ -15,15 +15,11 @@ label is not graded.
 
 **Pull request**
 
-[Link to the pull request you opened. It must be the pull request's own page on the Path
-Review repo, not your fork's branch page.]
+https://github.com/codepath/pathreview-ai301-fa26-s3/pull/121
 
 **Branch**
 
-[The name of the branch the pull request comes from, exactly as it appears in your fork.
-The naming shape is a type prefix, then the issue number, then a short description. **The
-issue number in the branch name must be the number of the issue the pull request fixes** —
-a name carrying any other number does not satisfy this field.]
+fix/68-empty-index
 
 ## Eval iterations
 
@@ -32,28 +28,57 @@ fields.
 
 **Run history**
 
-[The agreement score of each run you did, in order. A single run is a complete answer if
-only one run occurred. **The last score in your list must match the agreement line in the
-`eval-run.txt` you committed** — that file is the record of your final run.]
+1. Initial selective run on `pkg-02`, `pkg-03`, `pkg-04`, `pkg-12`, and
+   `pkg-20`: 0/0 scored items because all five Claude processes exited
+   with errors.
+2. Retried selective smoke run on the same five packages: 5/5 agreement.
+3. First full run: 15/20 agreement. The disagreements were `pkg-05`,
+   `pkg-08`, `pkg-11`, `pkg-16`, and `pkg-19`.
+4. Targeted revision run on `pkg-01`, `pkg-04`, `pkg-05`, `pkg-08`,
+   `pkg-11`, `pkg-16`, `pkg-17`, and `pkg-19`: 7/8 agreement.
+   `pkg-08` was the remaining disagreement.
+5. Final full saved run: 18/20 agreement, with every category matched;
+   PASS. The remaining disagreements were `pkg-08` and `pkg-16`.
 
 **Package analysis**
 
-[Pick one scored package (`pkg-01` through `pkg-20` — the four `calib-` packages are never
-scored). Name it by id, say what your rubric decided and what the gold label said, and
-explain why your rubric read it that way.]
+I analyzed `pkg-08`. My rubric returned `reject`, while the gold label
+was `accept`.
+
+The repository template required the code to be formatted. The candidate
+description said `"code formatted"`, but its test evidence only reported:
+
+> Integration test `stash_untracked_only_errors` passes; `go test ./...`
+> passes; `go generate ./...` produces no cheatsheet diff.
+
+It did not name a formatter invocation or show a formatter result. My
+`required-checks-reported` check therefore treated the formatting claim
+as asserted rather than verified. The gold label accepted the
+package, so my rubric is more conservative.
 
 **Check rationale**
 
-[Quote one check from the `rubric.md` you uploaded to `tools/pr-precheck/`, exactly as it reads now.
-Then say why it reads that way — what you revised to get there, or what you rejected in
-favour of it.]
+| required-checks-reported | The plan's regression checks and the repository's required checks read against the candidate test evidence and truthful checklist state. | Every applicable planned or repository-required check has a named invocation and a specific visible outcome. In an eval bundle, a concise result such as a named suite passing with a count, or a named formatter or linter reported clean, is sufficient unless the package contradicts it; do not require line-by-line stdout. In live mode, require the actual captured output requested by the course workflow. A failing or unavailable check may still satisfy evidence reporting when stated honestly with its result and reason, unless the result demonstrates that the change violates a required behavior. A hidden, skipped, vague, or merely asserted check fails. | required |
+
+I revised this check after the first full run rejected several
+clear-accept packages for incomplete check reporting. The current
+version allows concise named results in eval packages instead of
+requiring line-by-line terminal output, while live mode still requires
+the captured output requested by the course workflow. The targeted
+revision run reached 7/8 agreement, and the final full run reached
+18/20.
 
 **Trade-offs**
 
-[Every check gives something up. Any one of these is a complete answer: a package whose
-result it changes, a canary you re-ran with `--only`, a case you accept it will miss, or a
-stated reason nothing changed elsewhere. "Nothing changed, and here is how I know" earns
-the point in full when the reason follows.]
+The `required-checks-reported` check trades some acceptance for
+verifiability. It accepts concise results rather than requiring complete
+terminal transcripts, but it still rejects `pkg-08` because `"code
+formatted"` does not identify a formatter command or result. The gold
+label accepted that package, so this choice costs one match.
+
+I accepted that trade-off because the same evidence standard matched all
+four `not-tested` packages in the final run while still accepting five
+of the seven clear-accept packages.
 
 ---
 
