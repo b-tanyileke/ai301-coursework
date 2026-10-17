@@ -55,10 +55,9 @@ happened; these entries are the toolkit's own timeline.
 All four entries are graded. Keep every heading below, and fill each
 one in the week it belongs to.
 
-**Unit 5: [one line on the tool work]**
+**Unit 5: Built and tested an issue-scout for finding and grading first-contribution candidates**
 
-[2-4 sentences: what you built (the scout, your strategy), what broke
-or fell short, what changed because of it.]
+I extended my issue-selection skill into an issue-scout with my fit profile, four GitHub search queries, ranking filters, and a grading rubric. The initial scan prioritized brand-new, zero-comment issues, which made it select an issue that gained a pull request within ten minutes of creation. So I added `createdAt` to every query and excluded issues younger than two full days. Direct-grading three candidates from the course’s Issue Selection site accepted NVDA #20118 and exposed additional gaps around agent-assigned issues, maintainer attitudes toward AI-assisted work, and fixes blocked by another repository; those were recorded as future rubric improvements in scan-notes.md.
 
 **Unit 6: [one line on the tool work]**
 
