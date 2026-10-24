@@ -1,4 +1,4 @@
-# Contribution: [Issue Title]
+# Contribution: error copying NVDA user settings
 
 Path: `beat-2-contribution/contribution-story.md`
 
@@ -7,12 +7,11 @@ the repository is not read. **Keep every section header below under its exact na
 format criteria grade exactly that. Your course repo link is the whole submission: no tool
 files and no evidence uploads are part of Assignment 5.
 
-**Contribution Number:** [1]
-**Student:** [Student name]
-**GitHub Username:** [your GitHub username, exactly as it appears on your profile - no @, no
-profile URL. Your comments upstream are identified by this name.]
-**Issue:** [GitHub issue link]
-**Pull Request:** [GitHub PR link, once opened]
+**Contribution Number:** 1
+**Student:** Tanyieleke Nkolaka
+**GitHub Username:** b-tanyileke
+**Issue:** https://github.com/nvaccess/nvda/issues/20118
+**Pull Request:** Pending
 
 One repository, built across units 5 to 8, telling the whole story of your real
 contribution. Fill it as you work, not at the end — the sections below ask for evidence that
@@ -79,24 +78,18 @@ drafted, what you did with the draft.]
 
 ## Why I Chose This Issue
 
-[1-2 paragraphs in your own words: how you searched, what your scan
-surfaced, what your scout's verdict said, why this issue fits your
-profile, and what you hope to learn. If your scout's verdict on it
-was reject and you chose it anyway, say so here and say why; choosing
-against your own tool silently is what loses points. Close with an
-honest read of the tool itself: where the scout fell short on a real
-wild search and what you changed or would change, or what convinced
-you it held up. **Record the link to your claim comment in this section too.**
-Not claimed yet? Write `claim pending` and today's date where the link goes,
-and add the link the moment your claim lands.]
+I found this issue through the course's Issue Selection site and graded it with my issue-scout before choosing it. The scout accepted it and rated it as moderate difficulty. The repository is active, a maintainer suggested retrying the file copy, and the issue is limited to one identifiable behavior in `installer.tryCopyFile`.
+
+This issue fits my profile because it is a focused Python bug which I can attempt on my Windows 11 pc. This will help me practice reproducing a specific file handling problem in an established codebase. The scout pointed out that though the likely code change is small, reproducing the locked-file behavior is the harder part. The scout's scope check was too strict about issues with open questions, so I replaced it with `scope-feasible` and added a difficulty note.
+
+**Claim comment:** https://github.com/nvaccess/nvda/issues/20118#issuecomment-6385458583
 
 **Toolkit**
 
-- Tool: issue-scout (your scout: your search strategy, your rubric),
-  and how you used it
-- What it produced: [the scan and its verdict on this issue, described]
-- Difficulties: [where it fell short, or "none met" if none did]
-- What changed: [what you patched or would update, or "nothing"]
+- Tool: I used issue-scout to grade candidates from the Issue Selection site against my fit profile and rubric, then regraded them after applying the Unit 6 scope patch.
+- What it produced: It accepted NVDA #20118, rated it as moderate difficulty, identified the likely `installer.tryCopyFile` area, and warned me about an abandoned earlier attempt and the testing evidence maintainers had requested.
+- Difficulties: The original scope check treated unresolved questions like rejection reasons instead of increasing difficulty.
+- What changed: I replaced `Scope is bounded` with `scope-feasible` and added straightforward, moderate, and ambitious difficulty notes.
 
 ---
 
