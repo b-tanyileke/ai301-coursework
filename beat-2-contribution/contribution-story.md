@@ -58,11 +58,9 @@ one in the week it belongs to.
 
 I extended my issue-selection skill into an issue-scout with my fit profile, four GitHub search queries, ranking filters, and a grading rubric. The initial scan prioritized brand-new, zero-comment issues, which made it select an issue that gained a pull request within ten minutes of creation. So I added `createdAt` to every query and excluded issues younger than two full days. Direct-grading three candidates from the course’s Issue Selection site accepted NVDA #20118 and exposed additional gaps around agent-assigned issues, maintainer attitudes toward AI-assisted work, and fixes blocked by another repository; those were recorded as future rubric improvements in scan-notes.md.
 
-**Unit 6: [one line on the tool work]**
+**Unit 6: Added a voice guard for upstream posts and a local NVDA repository memory file**
 
-[2-4 sentences: the voice-guard, the repo-memory file. What broke or
-fell short, and what changed because of it. "Nothing broke" counts when
-it is true - say how you know.]
+I modified my voice guide with rules for claims, questions, and follow-up messages, then installed a hook that checks outgoing GitHub text before Claude Code posts it. The starter hook watched for Bash commands, but my version of Claude Code (2.1.310) used its PowerShell tool on Windows, so the hook initially did not inspect those commands; setting `CLAUDE_CODE_USE_POWERSHELL_TOOL` to `0` restored the Bash path, and the wiring test stopped an unreadable `gh issue comment` command. I also created and excluded the `CLAUDE.local.md` file for NVDA with its contribution rules, test commands, coding standards, and findings from the affected subsystem.
 
 **Unit 7: [one line on the tool work]**
 
