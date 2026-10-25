@@ -122,31 +122,32 @@ This issue fits my profile because it is a focused Python bug which I can attemp
 
 **Environment Setup**
 
-[What a stranger would need to stand this up: your operating system,
-the relevant versions (language, runtime, package manager, the project
-itself), and how you set the project up. Then the challenges you faced
-and how you solved them, or that none came up.]
+I tested on Windows 11 26H2 build 26300.9711 using Python 3.13.15 and an installed NVDA 2027.1.0dev build from commit `40e2df64cd2fdecdefa0b98f1056991b622c3d6e`. I initialized the repository submodules, built the source with `.\scons.bat source -j 1`, packaged it with `.\scons.bat launcher -j 1`, and installed the generated launcher. No add-ons were installed or enabled.
+
+Preparing the environment required installing the system Python version expected by NVDA and adding the Visual Studio C++ Clang tools. The initial build failed until those dependencies were available.
 
 **Steps to Reproduce**
 
-1. [Step 1]
-2. [Step 2]
-3. [Observed result]
+1. In NVDA Settings > General, I selected "Use currently saved settings during sign-in and on secure screens" and approved UAC. The normal-copy baseline succeeded.
+2. I created a harmless file in `%APPDATA%\nvda`, opened it with read/write sharing enabled, and applied a byte-range lock with PowerShell's `FileStream.Lock`.
+3. I repeated the settings-copy operation while the lock remained active. NVDA displayed "Error copying NVDA user settings," and its log recorded `OSError: error 33 copying` from `installer.tryCopyFile`.
+4. I released the lock without changing the file and repeated the operation. The copy succeeded.
+5. I removed the test file, copied the cleaned configuration again, and verified that the test file was absent from both the user and system configurations.
+
+I used a byte-range lock because the reporter's log contained Windows error 33, a lock violation. My earlier exclusive-open test produced error 32, a sharing violation, so it did not match the reported failure closely enough.
 
 **Reproduction Evidence**
 
-- **Commit showing reproduction:** [link to commit in your fork]
-- **Screenshots/logs:** [if applicable]
-- **My findings:** [what you discovered during reproduction; an
-  honest, evidenced cannot-reproduce that led you to re-pick or ask
-  the maintainer belongs here and costs you nothing]
+- **Commit showing reproduction:** The controlled test used the unchanged baseline at [`40e2df6`](https://github.com/b-tanyileke/nvda/commit/40e2df64cd2fdecdefa0b98f1056991b622c3d6e); no reproduction-specific source code was committed.
+- **Screenshots/logs:** The visible error dialog said "Error copying NVDA user settings." The log showed error 33 while copying the controlled test file through `_setSystemConfig` and `installer.tryCopyFile`.
+- **My findings:** `config._setSystemConfig` calls `installer.tryCopyFile` once for each configuration file. Unlike `installer.tryRemoveFile`, which retries up to six times, `tryCopyFile` has no retry loop for this failure. The same file failed while byte-range locked and copied successfully after the lock was released. This supports the reported locked-file failure path but does not identify which AIAssistant operation creates the reporter's lock or how long it lasts. I also did not test the reporter's add-on configuration or measure which unrelated files were copied before the failure.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: I used `repro-check` to grade my claim and reproduction report against the issue, repository conventions, and evidence rubric.
+- What it produced: It accepted the final package after confirming that my controlled test matched the reporter's error 33, visible dialog, and failing code path.
+- Difficulties: My first controlled test used an exclusive file handle and produced error 32 rather than the reporter's error 33. Preparing the NVDA build also required resolving Python and Visual Studio Clang dependencies.
+- What changed: I replaced the exclusive-open test with a byte-range lock, reran the failure and recovery controls, and revised the report to distinguish the controlled reproduction from the reporter's add-on environment.
 
 ---
 
