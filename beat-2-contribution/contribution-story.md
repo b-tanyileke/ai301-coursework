@@ -95,26 +95,26 @@ This issue fits my profile because it is a focused Python bug which I can attemp
 
 **Problem Description**
 
-[In your own words, what is broken or missing?]
+Copying NVDA user settings for sign-in and secure screens can fail when one eligible configuration file is temporarily locked. Because the copy stops at the first failure, one locked file prevents the entire settings-copy operation from completing.
 
 **Expected Behavior**
 
-[What should happen?]
+NVDA should copy all requested user settings and add-ons into the system configuration and report that the copy succeeded. A temporary file lock should not abort the operation if it clears during a bounded retry period, while a permanent failure should still be reported.
 
 **Current Behavior**
 
-[What actually happens?]
+`config._setSystemConfig` calls `installer.tryCopyFile` once for each eligible configuration file. A byte-range lock produces Windows error 33, which `tryCopyFile` raises as an `OSError`. The elevated `setNvdaSystemConfig` action then exits with an error, and NVDA displays “Error copying NVDA user settings.”
 
 **Affected Components**
 
-[Which parts of the codebase are involved?]
+The affected flow is `source/config/__init__.py` through `setSystemConfigToCurrentConfig` and `_setSystemConfig`, `source/installer.py` through `tryCopyFile`, and `source/nvda_slave.pyw` through the elevated `setNvdaSystemConfig` action. Focused regression tests belong in `tests/unit/test_installer.py`.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: I used Claude Code to trace the settings-copy flow in my local NVDA checkout, then verified its findings against the current upstream source.
+- What it produced: It identified the path from `config._setSystemConfig` to `installer.tryCopyFile`, the missing retry around `CopyFile`, the elevated slave’s error handling, and the existing retry pattern in `tryRemoveFile`.
+- Difficulties: The initial analysis stopped before inspecting `nvda_slave.pyw`, and the issue-page output did not include the complete original report.
+- What changed: I inspected the missing slave and test paths, confirmed that error 33 becomes an ordinary slave failure, and narrowed the proposed change to `tryCopyFile` and its unit tests.
 
 ---
 
@@ -155,29 +155,38 @@ I used a byte-range lock because the reporter's log contained Windows error 33, 
 
 **Analysis**
 
-[Your analysis of the root cause: what is causing the issue, traced
-to the files and functions involved.]
+`setSystemConfigToCurrentConfig` in `source/config/__init__.py` starts the secure-screen settings copy, using the elevated `setNvdaSystemConfig` action when needed. `_setSystemConfig` removes the previous system configuration and calls `installer.tryCopyFile` once for each eligible user-configuration file.
+
+In `source/installer.py`, `tryCopyFile` calls the Windows `CopyFile` function only once on the initial copy path. When a source file is temporarily locked and the destination does not yet exist, the function immediately raises an `OSError`. The controlled reproduction confirmed this path with Windows error 33. By comparison, `tryRemoveFile` already uses a bounded retry interval for temporary filesystem failures.
+
+The duration and add-on operation responsible for the reporter’s original lock are still unknown. The controlled test proves the same error code, visible failure, and code path, but it does not reproduce the reporter’s complete AIAssistant environment.
+
 
 **Proposed Solution**
 
-[High-level description of your fix approach, and what you are
-deliberately NOT changing.]
+Add configurable retry-count and retry-interval parameters to `installer.tryCopyFile`, with defaults matching the bounded behavior used by `tryRemoveFile`. Retry the initial `CopyFile` operation when the destination does not exist, allowing a temporary source-file lock to clear before raising the existing `OSError`.
+
+Keep the existing destination-overwrite fallback unchanged. Do not change which configuration files `_setSystemConfig` copies, the elevated-process protocol, add-on behavior, or the user-facing dialogs. Permanent failures will still be reported after the bounded attempts are exhausted.
+
+Because `tryCopyFile` is also used by installation, user-configuration, and portable-copy paths, those callers will receive the same bounded retries and may wait about three seconds longer before a permanent failure is reported. Unit tests will cover `tryCopyFile`'s existing successful-copy and overwrite behavior.
 
 **Implementation Plan**
 
-1. [Modify file X to do Y]
-2. [Add or change Z]
-3. [Update tests]
+1. Modify `tryCopyFile` in `source/installer.py` to make up to six initial copy attempts with a configurable 0.5-second interval. Return immediately after a successful copy and preserve the existing destination-overwrite path.
+2. Add focused tests in `tests/unit/test_installer.py` covering immediate success without sleeping, temporary failures followed by success, exhausted retries, and preservation of the existing-destination overwrite behavior.
+3. Add a user-facing bug-fix entry for #20118 to `user_docs/en/changes.md`, as required by NVDA's contribution guide.
+4. Run the focused installer tests and the full checks listed in `ship-manifest.md`: unit tests, lint, translation-comment checks, and dependency-license checks.
+5. Build and install the changed launcher, then repeat the controlled byte-range-lock reproduction. Verify an unlocked baseline, a temporary lock released during the retry window that now succeeds, and a persistent-lock control that still fails after the bounded attempts.
+6. Record the before-and-after observations and check results in `test_evidence.md` and the contribution story. If implementation requires a material change from this plan, update `plan.md` and record the reason before continuing.
 
-[Record deviations here as they happen: what changed mid-build and
-why. A recorded deviation is honest work; silent drift is not.]
+No deviations have been recorded before implementation.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: I used `plan-check` to grade `plan.md` and my draft issue comment against the live issue, reproduction evidence, repository conventions, and planning rubric.
+- What it produced: It accepted a bounded retry plan for `installer.tryCopyFile`, four focused unit-test cases, the controlled before-and-after reproduction, and a user-facing change-log entry.
+- Difficulties: The first run rejected my draft comment because it referred to reproduction evidence that had not been shared on the issue thread and omitted the limits of my controlled test.
+- What changed: I added the environment, byte-range-lock steps, error 33 result, successful controls, and unknowns to the draft comment. I also documented the added delay for other `tryCopyFile` callers and added the required change-log step.
 
 ---
 
