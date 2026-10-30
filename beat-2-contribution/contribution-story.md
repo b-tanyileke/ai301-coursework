@@ -11,7 +11,7 @@ files and no evidence uploads are part of Assignment 5.
 **Student:** Tanyieleke Nkolaka
 **GitHub Username:** b-tanyileke
 **Issue:** https://github.com/nvaccess/nvda/issues/20118
-**Pull Request:** Pending
+**Pull Request:** https://github.com/nvaccess/nvda/pull/21090
 
 One repository, built across units 5 to 8, telling the whole story of your real
 contribution. Fill it as you work, not at the end — the sections below ask for evidence that
@@ -62,10 +62,9 @@ I extended my issue-selection skill into an issue-scout with my fit profile, fou
 
 I modified my voice guide with rules for claims, questions, and follow-up messages, then installed a hook that checks outgoing GitHub text before Claude Code posts it. The starter hook watched for Bash commands, but my version of Claude Code (2.1.310) used its PowerShell tool on Windows, so the hook initially did not inspect those commands; setting `CLAUDE_CODE_USE_POWERSHELL_TOOL` to `0` restored the Bash path, and the wiring test stopped an unreadable `gh issue comment` command. I also created and excluded the `CLAUDE.local.md` file for NVDA with its contribution rules, test commands, coding standards, and findings from the affected subsystem.
 
-**Unit 7: [one line on the tool work]**
+**Unit 7: Added a ship-gate and used it to validate the NVDA contribution**
 
-[2-4 sentences: the ship-gate and your gate manifest. What it produced
-on your real branch, what fought you, what changed because of it.]
+I installed the ship-gate and created a manifest containing NVDA's unit, lint, translation-comment, and dependency-license checks. The first gate run rejected unrelated formatting changes in the existing overwrite fallback and an unsupported statement in the PR draft, so I restored the fallback, corrected the description, amended the commit, and rebuilt the launcher. The final gate passed all four repository checks and every `pr-precheck` criterion before I opened PR #21090 as a draft and later marked it ready for review.
 
 **Unit 8: [one line on the tool work]**
 
@@ -226,27 +225,24 @@ The first ship-gate run rejected the branch because I had also reformatted the e
 
 ## Pull Request
 
-**PR Link:** [GitHub PR URL when opened]
+**PR Link:** https://github.com/nvaccess/nvda/pull/21090
 
-**PR Description:** [what the PR says; much of the content above
-adapts into it]
+**PR Description:** The PR adds up to six initial copy attempts, 0.5 seconds apart, when `installer.tryCopyFile` encounters a failed initial copy. It preserves the existing overwrite fallback, adds four focused unit tests, and includes a user-facing change-log entry. The description records the before-and-after locked-file evidence, all local checks, the limits of the controlled reproduction, and how AI assisted with the work.
+
+The reproduction findings were also posted on the issue: https://github.com/nvaccess/nvda/issues/20118#issuecomment-6533343411
 
 **Maintainer Feedback:**
 
-- [Date]: [feedback received, or "none yet"; silence is a normal
-  state and costs you nothing]
-- [Date]: [how you addressed it]
+- 2026-10-30: No maintainer feedback has been received yet. The pull request is ready for review, and its workflows are awaiting maintainer approval.
 
-**Status:** [Awaiting review / Iterating / Merged / Closed. The
-status is a fact you record, never a grade: the PR is graded as
-opened.]
+**Status:** Awaiting review
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: I used the ship-gate to run NVDA's manifest checks and my `pr-precheck` against the committed diff, accepted plan, test evidence, and PR description before opening the pull request.
+- What it produced: The final run passed the unit, lint, translation-comment, and license checks and accepted all seven PR rubric checks. Claude Code opened PR #21090 as a draft against `nvaccess/nvda:master`, and I marked it ready after verifying the target and description.
+- Difficulties: The first gate run caught unrelated fallback formatting and an inaccurate attribution in the PR description. It also warned that the voice-guide files were not symbolic links even though Windows showed that they were matching hard links.
+- What changed: I restored the overwrite fallback exactly, removed the unsupported attribution, amended the implementation commit, rebuilt the final launcher, corrected the retry wording, and reran the gate until it passed.
 
 ---
 
