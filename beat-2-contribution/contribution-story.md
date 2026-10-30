@@ -179,7 +179,7 @@ Because `tryCopyFile` is also used by installation, user-configuration, and port
 5. Build and install the changed launcher, then repeat the controlled byte-range-lock reproduction. Verify an unlocked baseline, a temporary lock released during the retry window that now succeeds, and a persistent-lock control that still fails after the bounded attempts.
 6. Record the before-and-after observations and check results in `test_evidence.md` and the contribution story. If implementation requires a material change from this plan, update `plan.md` and record the reason before continuing.
 
-No deviations have been recorded before implementation.
+No deviations from the accepted plan were required during implementation.
 
 **Toolkit**
 
@@ -192,39 +192,33 @@ No deviations have been recorded before implementation.
 
 ## Testing Strategy
 
-[What observable checks prove the fix: your reproduction steps re-run
-against the built change (before and after), and the repo's own test
-suite or checks with the outcome shown. "Tests pass" with nothing
-observable named is not a strategy.]
+I added four focused tests in `tests/unit/test_installer.py`. They verify that an immediate successful copy does not sleep, temporary failures are retried until a copy succeeds, exhausted attempts raise the copy error, and an existing destination still uses the original overwrite fallback without retrying. Before implementation, the two retry tests failed because `tryCopyFile` did not accept the retry parameters. After implementation, all 106 installer tests passed.
+
+I rebuilt and installed the changed launcher and repeated the controlled byte-range-lock test. The unlocked baseline succeeded, and a lock released 750 milliseconds after the settings copy began now succeeded during the retry window. A lock held through all attempts still produced error 33, and the copy succeeded again after the lock was released. The full 1,502-test suite, lint, translation checks, license checks, and `git diff --check` all passed.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: I used NVDA’s unit-test runner and a PowerShell byte-range-lock harness to verify the retry behavior at both the function and installed-application levels.
+- What it produced: The tests showed the retry cases failing before implementation and all 106 focused tests passing afterward. The live test showed a temporary lock now succeeding while a persistent lock still failed after bounded attempts.
+- Difficulties: The default NVDA log recorded the final error but not the individual `debugWarning` retry messages, and a timed release had to occur after the copy actually began.
+- What changed: I used a background job that watched for the previous destination to disappear and released the lock 750 milliseconds later, giving a repeatable test inside the retry window.
 
 ---
 
 ## Implementation Notes
 
-[A running log, added to as you work. Date each entry. What you
-built, decisions you made when you made them, wrong turns included.]
+**2026-10-30**
 
-**[Date]**
+I created `fix/20118-retry-settings-copy` from current upstream commit `0041ab653`. I first added four focused `tryCopyFile` tests. The two new retry tests failed against the unchanged function with `TypeError`, while the immediate-success and overwrite-fallback controls passed.
 
-[Entry]
-
-**[Date]**
-
-[Entry]
+I added configurable retry attempts and intervals to `source/installer.py`, preserving the existing overwrite fallback. I added the focused tests to `tests/unit/test_installer.py` and the required user-facing entry to `user_docs/en/changes.md`. The focused tests, full suite, repository checks, launcher build, and controlled installed-build reproduction all passed.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: I used Codex to translate the accepted plan into a test-first patch, review the three-file diff, and guide the controlled installed-build verification.
+- What it produced: The work changed `tryCopyFile`, added four regression tests, and documented the user-visible fix in the NVDA change log.
+- Difficulties: The retry had to allow temporary source locks to clear without changing the existing-destination overwrite path or hiding permanent failures.
+- What changed: I began with failing retry tests, implemented the bounded loop, retained the overwrite fallback, and added a persistent-lock control after the temporary-lock success.
 
 ---
 
