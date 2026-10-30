@@ -213,12 +213,14 @@ I created `fix/20118-retry-settings-copy` from current upstream commit `0041ab65
 
 I added configurable retry attempts and intervals to `source/installer.py`, preserving the existing overwrite fallback. I added the focused tests to `tests/unit/test_installer.py` and the required user-facing entry to `user_docs/en/changes.md`. The focused tests, full suite, repository checks, launcher build, and controlled installed-build reproduction all passed.
 
+The first ship-gate run rejected the branch because I had also reformatted the existing overwrite fallback and because the PR draft overstated what had been requested in an earlier review. I restored the fallback to its original code, removed the unsupported attribution, reran the focused tests and lint, amended the implementation commit, and rebuilt the final launcher from commit `559558446`.
+
 **Toolkit**
 
 - Tool: I used Codex to translate the accepted plan into a test-first patch, review the three-file diff, and guide the controlled installed-build verification.
 - What it produced: The work changed `tryCopyFile`, added four regression tests, and documented the user-visible fix in the NVDA change log.
-- Difficulties: The retry had to allow temporary source locks to clear without changing the existing-destination overwrite path or hiding permanent failures.
-- What changed: I began with failing retry tests, implemented the bounded loop, retained the overwrite fallback, and added a persistent-lock control after the temporary-lock success.
+- Difficulties: The retry had to allow temporary source locks to clear without changing the existing-destination overwrite path or hiding permanent failures. The first ship-gate run also caught unrelated formatting changes in that fallback.
+- What changed: I began with failing retry tests, implemented the bounded loop, restored the fallback exactly after the gate rejection, and added a persistent-lock control after the temporary-lock success.
 
 ---
 
