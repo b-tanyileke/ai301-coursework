@@ -66,10 +66,9 @@ I modified my voice guide with rules for claims, questions, and follow-up messag
 
 I installed the ship-gate and created a manifest containing NVDA's unit, lint, translation-comment, and dependency-license checks. The first gate run rejected unrelated formatting changes in the existing overwrite fallback and an unsupported statement in the PR draft, so I restored the fallback, corrected the description, amended the commit, and rebuilt the launcher. The final gate passed all four repository checks and every `pr-precheck` criterion before I opened PR #21090 as a draft and later marked it ready for review.
 
-**Unit 8: [one line on the tool work]**
+**Unit 8: Built a PR-monitor playbook and used it to avoid a duplicate reply**
 
-[2-4 sentences: the PR-monitor and your playbook. What it read, what it
-drafted, what you did with the draft.]
+I installed the PR monitor and wrote the playbook after measuring maintainer response times on five recently merged NVDA pull requests from outside contributors. The state check labeled an already-answered maintainer comment as new feedback, but the full drafting pass applied my playbook and recommended sending nothing because I had already replied and the 10-day quiet threshold had not been reached. I checked the live thread, skipped the draft, and kept the playbook rule requiring me to verify the thread before posting anything.
 
 ---
 
@@ -214,6 +213,12 @@ I added configurable retry attempts and intervals to `source/installer.py`, pres
 
 The first ship-gate run rejected the branch because I had also reformatted the existing overwrite fallback and because the PR draft overstated what had been requested in an earlier review. I restored the fallback to its original code, removed the unsupported attribution, reran the focused tests and lint, amended the implementation commit, and rebuilt the final launcher from commit `559558446`.
 
+**2026-11-06**
+
+I installed the PR monitor and wrote its playbook using my voice guide, NVDA's contribution rules, and response times from five recent merged pull requests by outside contributors. The first maintainer action on those pull requests ranged from 0.25 to 8.14 days, so I set a 10-quiet-day threshold before sending one review nudge.
+
+The monitor found PR #21090 open and mergeable, but blocked pending review. Its state classifier treated the October 31 maintainer comment as new feedback even though my response was the latest thread activity. The drafting pass applied my playbook and recommended sending nothing because the comment had already been answered and the 10-day threshold had not been reached. I reviewed the live thread, skipped the duplicate reply, and made no source or branch changes.
+
 **Toolkit**
 
 - Tool: I used Codex to translate the accepted plan into a test-first patch, review the three-file diff, and guide the controlled installed-build verification.
@@ -233,7 +238,9 @@ The reproduction findings were also posted on the issue: https://github.com/nvac
 
 **Maintainer Feedback:**
 
-- 2026-10-30: No maintainer feedback has been received yet. The pull request is ready for review, and its workflows are awaiting maintainer approval.
+- 2026-10-31: [LeonarddeR asked whether I had read NVDA's AI policy and told me to preserve the repository's code-review checklist](https://github.com/nvaccess/nvda/pull/21090#issuecomment-6540904346).
+- 2026-10-31: [I confirmed that I had personally reviewed and tested the change and restored the checklist exactly as provided in the repository template](https://github.com/nvaccess/nvda/pull/21090#issuecomment-6548915868).
+- 2026-11-06: No additional maintainer feedback has arrived. The pull request remains open and ready for review.
 
 **Status:** Awaiting review
 
@@ -250,25 +257,21 @@ The reproduction findings were also posted on the issue: https://github.com/nvac
 
 **Technical Skills Gained**
 
-[What you learned technically, named concretely.]
+I learned how to trace a failure through an unfamiliar Python codebase. I reproduced Windows error 33 with a byte-range lock, wrote focused regression tests around the copy helper, and verified the change by building and installing NVDA. I also practiced using AI-assisted development tools with explicit checks: the scout narrowed issues, the reproduction and plan checks challenged unsupported claims, the ship-gate validated the committed diff, and the PR monitor drafted next moves without posting them.
 
 **Challenges Overcome**
 
-[What was hard and how you solved it; point at the real events, the
-Toolkit blocks above are full of them.]
+Preparing NVDA required a specific Python version, repository submodules, and the Visual Studio Clang tools. My first reproduction used an exclusive file handle and produced error 32 instead of the reporter's error 33, so I replaced it with a byte-range lock and added normal-copy and recovery controls. Later, the ship-gate caught unrelated formatting changes, and a maintainer pointed out that I had altered the PR checklist. I restored the existing fallback code and checklist, and answered the maintainer directly.
 
 **What I'd Do Differently Next Time**
 
-[Reflection on your process.]
+I would do better at reading and following maintainer guidelines in the contribution policy and pull-request templates before drafting the PR. I would also keep changes limited to planned behavior and avoid unnecessary changes.
 
 ---
 
 ## Resources Used
 
-[What actually helped, not a reading list. List things this story
-already shows you using: the doc you followed to set the environment
-up, the thread that explained the bug, the person who answered you.
-One real entry beats ten plausible ones.]
-
-- [Link to documentation that helped]
-- [Discussion, issue, or post that helped]
+- [NVDA contribution guide](https://github.com/nvaccess/nvda/blob/master/projectDocs/dev/contributing.md): I used its environment, testing, change-log, pull-request, and review requirements throughout the contribution.
+- [NVDA issue #20118](https://github.com/nvaccess/nvda/issues/20118): The report, attached log, and discussion identified the locked-file failure and the affected settings-copy behavior.
+- [Earlier contribution attempt PR #20635](https://github.com/nvaccess/nvda/pull/20635): The maintainer's questions about a normal copy and a copy with a file held open guided my reproduction controls.
+- [NVDA code-review checklist explanation](https://github.com/nvaccess/nvda/blob/master/projectDocs/dev/githubPullRequestTemplateExplanationAndExamples.md#code-review-checklist): I used it when restoring and reviewing the PR checklist after the maintainer's comment.
